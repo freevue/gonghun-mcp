@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "description": "국가유공자 공적을 탐색하고 정제하는 MCP 서버",
   "type": "module",
-  "bin": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "bin": "./dist/index.mjs",
+  "types": "./dist/index.d.mts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean",
-    "dev": "tsup src/index.ts --format esm --dts --clean --watch",
-    "start": "node dist/index.js"
+    "build": "tsdown src/index.ts --format esm --clean",
+    "dev": "tsdown src/index.ts --format esm --clean --watch",
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.6.0",
@@ -20,6 +21,7 @@
   },
   "devDependencies": {
     "@types/node": "^22.13.9",
+    "tsdown": "^0.21.4",
     "tsup": "^8.2.3",
     "typescript": "^5.8.2"
   },
