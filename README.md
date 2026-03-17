@@ -14,28 +14,53 @@
 
 ---
 
-## 🚀 빠른 시작 (Quick Start)
+## 💡 MCP 클라이언트 설정 (Client Setup)
 
-별도의 설치나 클론 없이, **`npx`**를 통해 즉시 실행할 수 있습니다.
+본 MCP 서버는 다양한 MCP 지원 클라이언트에서 활용할 수 있습니다.
 
-```bash
-npx gonghun-mcp
-```
+### 1️⃣ Claude Desktop
 
----
+Claude Desktop에서 이 MCP를 사용하려면 사용자 설정 파일(`claude_desktop_config.json`)에 아래 내용을 추가하세요.
 
-## 💡 Claude Desktop 설정 (Claude Desktop Setup)
-
-Claude Desktop에서 이 MCP를 사용하려면 `claude_desktop_config.json` 파일에 아래 설정을 추가하세요.
-
-### 🛠️ npx 기반 실행 (권장)
+- **설정 파일 경로**: `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS)
+- **설정 내용**:
 
 ```json
 {
   "mcpServers": {
     "gonghun": {
       "command": "npx",
-      "args": ["-y", "gonghun-mcp"]
+      "args": ["-y", "@freevuehub/gonghun-mcp"]
+    }
+  }
+}
+```
+
+---
+
+### 2️⃣ Cursor
+
+Cursor 에디터에서 AI 어시스턴트가 이 MCP를 활용하도록 등록할 수 있습니다.
+
+1. Cursor 설정 (`Settings`) ➔ `Features` ➔ `MCP` 섹션으로 이동
+2. `+ Add New MCP Server` 클릭
+3. 아래 정보 입력 후 생성:
+   - **Name**: `gonghun` (자유롭게 지정)
+   - **Type**: `command`
+   - **Command**: `npx -y @freevuehub/gonghun-mcp`
+
+---
+
+### 3️⃣ Antigravity / Gemini Sandbox (기타 클라이언트)
+
+Antigravity나 Cline 등 전용 확장 프로그램에서도 `mcp_config.json` 규격에 맞춰 동일하게 연동됩니다.
+
+```json
+{
+  "mcpServers": {
+    "gonghun": {
+      "command": "npx",
+      "args": ["-y", "@freevuehub/gonghun-mcp"]
     }
   }
 }
@@ -49,33 +74,44 @@ Claude Desktop에서 이 MCP를 사용하려면 `claude_desktop_config.json` 파
 
 ### 🔍 `search_independence_merit`
 
-- **역할**: 이름, 생년월일, 공적 내용 등으로 유공자를 검색합니다.
-- **파라미터**: `name`, `birth_date`, `achievement_summary` (모두 선택)
+- **역할**: 독립유공자의 공훈록 목록을 검색합니다.
+- **파라미터**:
+  - `nameKo` _(선택)_: 이름 (한글)
+  - `nameCh` _(선택)_: 이름 (한자)
+  - `workoutAffil` _(선택)_: 운동계열 코드 (예: 3.1운동 `UGC00003`)
+  - `judgeYear` _(선택)_: 포상년도 (YYYY)
+  - `nPageIndex` _(선택)_: 페이지 번호 (기본값: 1)
+  - `nCountPerPage` _(선택)_: 페이지당 결과 수 (기본값: 10)
 
 ### 📜 `get_merit_detail`
 
-- **역할**: 고유 ID를 통해 특정 유공자의 상세 공훈록을 심층 조회합니다.
-- **파라미터**: `merit_id` (필수)
+- **역할**: 특정 독립유공자의 상세 공훈록 원문을 조회합니다.
+- **파라미터**:
+  - `nameKo` **(필수)**: 유공자 이름
+  - `judgeYear` _(선택)_: 포상년도 (YYYY)
 
 ### ✊ `list_by_movement`
 
-- **역할**: 3.1운동, 의병 등 운동 계열별로 유공자 목록을 필터링합니다.
-- **파라미터**: `movement_type` (필수)
+- **역할**: 특정 운동 계열별로 유공자 목록을 조회합니다.
+- **파라미터**:
+  - `workoutAffil` **(필수)**: 운동계열 코드 (예: 3.1운동 `UGC00003`, 의열투쟁 `UGC00005` 등)
+  - `nPageIndex` _(선택)_: 페이지 번호 (기본값: 1)
+  - `nCountPerPage` _(선택)_: 페이지당 결과 수 (기본값: 10)
 
 ### 📊 `get_merit_stats`
 
-- **역할**: 기간, 지역, 운동 계열별 유공자 통계 데이터를 제공합니다.
-- **파라미터**: `start_date`, `end_date`, `region`, `movement_type`
+- **역할**: 국가보훈 관련 기본적인 통계 데이터를 제공합니다.
+- **파라미터**: 없음 (전체 통계 제공)
 
 ---
 
-## 💻 로컬 개발 환경 (Local Development)
+## 💡 활용 예시 (Example Queries)
 
-기여를 원하시거나 로컬에서 수정하여 실행하시려면 아래 단계를 따르세요.
+LLM에게 다음과 같이 요청하여 데이터를 활용할 수 있습니다.
 
-1. **의존성 설치**: `pnpm install`
-2. **프로젝트 빌드**: `pnpm run build` (tsdown 기반)
-3. **서버 실행**: `pnpm start`
+- _"안중근 의사의 순국일과 주요 공적을 정리해줘"_
+- _"3.1운동 계열의 독립유공자 5명의 성함과 세부 정보를 알려줘"_
+- _"독립유공자 중 포상년도가 1962년인 분들의 통계를 내줘"_
 
 ---
 
