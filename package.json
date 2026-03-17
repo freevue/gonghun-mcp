@@ -1,6 +1,6 @@
 {
-  "name": "@freevue/gonghun-mcp",
-  "version": "0.1.0",
+  "name": "@freevuehub/gonghun-mcp",
+  "version": "1.0.0",
   "description": "국가유공자 공적을 탐색하고 정제하는 MCP 서버",
   "type": "module",
   "bin": "./dist/index.mjs",
@@ -37,5 +37,13 @@
     "국가유공자"
   ],
   "author": "freevue",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/freevue/gonghun-mcp.git"
+  },
+  "homepage": "https://github.com/freevue/gonghun-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/freevue/gonghun-mcp/issues"
+  }
 }

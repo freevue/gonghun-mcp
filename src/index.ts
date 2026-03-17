@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import pkg from '../package.json'
 import { MeritClient } from './MeritClient'
 import { Server } from '@modelcontextprotocol/sdk/server'
