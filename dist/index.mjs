@@ -1,8 +1,11 @@
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
+import axios from "axios";
+import { Server } from "@modelcontextprotocol/sdk/server";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
-import axios from "axios";
-//#region src/merit-client.ts
+//#region package.json
+var version = "0.1.0";
+//#endregion
+//#region src/MeritClient.ts
 var MeritClient = class {
 	BASE_URL = "https://e-gonghun.mpva.go.kr/opnAPI/contribuMeritList.do";
 	constructor() {}
@@ -48,15 +51,15 @@ var MeritClient = class {
 //#region src/index.ts
 const meritClient = new MeritClient();
 /**
-* National Merit Scout MCP Server
+* Gonghun MCP Server
 * 국가유공자 공적을 탐색하고 정제하는 MCP 서버
 */
-var NationalMeritScoutServer = class {
+var GonghunServer = class {
 	server;
 	constructor() {
 		this.server = new Server({
-			name: "national-merit-scout",
-			version: "1.0.0"
+			name: "gonghun",
+			version
 		}, { capabilities: { tools: {} } });
 		this.setupToolHandlers();
 		this.server.onerror = (error) => console.error("[MCP Error]", error);
@@ -208,10 +211,10 @@ var NationalMeritScoutServer = class {
 	async run() {
 		const transport = new StdioServerTransport();
 		await this.server.connect(transport);
-		console.error("National Merit Scout MCP server running on stdio");
+		console.error("Gonghun MCP server running on stdio");
 	}
 };
-new NationalMeritScoutServer().run().catch(console.error);
+new GonghunServer().run().catch(console.error);
 //#endregion
 export {};
 

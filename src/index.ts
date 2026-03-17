@@ -1,41 +1,36 @@
-import { Server } from '@modelcontextprotocol/sdk/server/index.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js';
-import { MeritClient } from './merit-client.js';
+import pkg from '../package.json'
+import { MeritClient } from './MeritClient'
+import { Server } from '@modelcontextprotocol/sdk/server'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { CallToolRequestSchema, ListToolsRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 
-const meritClient = new MeritClient();
+const meritClient = new MeritClient()
 
 /**
- * National Merit Scout MCP Server
+ * Gonghun MCP Server
  * 국가유공자 공적을 탐색하고 정제하는 MCP 서버
  */
-class NationalMeritScoutServer {
-  private readonly server: Server;
+class GonghunServer {
+  private readonly server: Server
 
   constructor() {
     this.server = new Server(
-      {
-        name: 'national-merit-scout',
-        version: '1.0.0',
-      },
+      { name: 'gonghun', version: pkg.version },
       {
         capabilities: {
           tools: {},
         },
       }
-    );
+    )
 
-    this.setupToolHandlers();
-    
+    this.setupToolHandlers()
+
     // 에러 핸들링
-    this.server.onerror = (error) => console.error('[MCP Error]', error);
+    this.server.onerror = (error) => console.error('[MCP Error]', error)
     process.on('SIGINT', async () => {
-      await this.server.close();
-      process.exit(0);
-    });
+      await this.server.close()
+      process.exit(0)
+    })
   }
 
   private setupToolHandlers() {
@@ -48,8 +43,16 @@ class NationalMeritScoutServer {
           inputSchema: {
             type: 'object',
             properties: {
-              nPageIndex: { type: 'number', description: '페이지 번호', default: 1 },
-              nCountPerPage: { type: 'number', description: '페이지당 결과 수', default: 10 },
+              nPageIndex: {
+                type: 'number',
+                description: '페이지 번호',
+                default: 1,
+              },
+              nCountPerPage: {
+                type: 'number',
+                description: '페이지당 결과 수',
+                default: 10,
+              },
               nameKo: { type: 'string', description: '이름 (한글)' },
               nameCh: { type: 'string', description: '이름 (한자)' },
               workoutAffil: { type: 'string', description: '운동계열 코드' },
@@ -65,7 +68,10 @@ class NationalMeritScoutServer {
             type: 'object',
             properties: {
               nameKo: { type: 'string', description: '유공자 이름' },
-              judgeYear: { type: 'string', description: '포상년도 (선택 사항)' },
+              judgeYear: {
+                type: 'string',
+                description: '포상년도 (선택 사항)',
+              },
             },
             required: ['nameKo'],
           },
@@ -76,9 +82,20 @@ class NationalMeritScoutServer {
           inputSchema: {
             type: 'object',
             properties: {
-              workoutAffil: { type: 'string', description: '운동계열 코드 (예: 3.1운동 UGC00003)' },
-              nPageIndex: { type: 'number', description: '페이지 번호', default: 1 },
-              nCountPerPage: { type: 'number', description: '페이지당 결과 수', default: 10 },
+              workoutAffil: {
+                type: 'string',
+                description: '운동계열 코드 (예: 3.1운동 UGC00003)',
+              },
+              nPageIndex: {
+                type: 'number',
+                description: '페이지 번호',
+                default: 1,
+              },
+              nCountPerPage: {
+                type: 'number',
+                description: '페이지당 결과 수',
+                default: 10,
+              },
             },
             required: ['workoutAffil'],
           },
@@ -93,69 +110,98 @@ class NationalMeritScoutServer {
           },
         },
       ],
-    }));
+    }))
 
     // 2. 도구 실행 핸들러
     this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
-      const { name, arguments: args } = request.params;
+      const { name, arguments: args } = request.params
 
       try {
         switch (name) {
           case 'search_independence_merit':
-            const searchParams = args as any;
-            const searchResult = await meritClient.searchIndependenceMerit(searchParams);
+            const searchParams = args as any
+            const searchResult = await meritClient.searchIndependenceMerit(searchParams)
             return {
-              content: [{ 
-                type: 'text', 
-                text: JSON.stringify({ items: searchResult.ITEMS || [], totalCount: searchResult.TOTAL_COUNT || 0 }, null, 2) 
-              }],
-            };
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    {
+                      items: searchResult.ITEMS || [],
+                      totalCount: searchResult.TOTAL_COUNT || 0,
+                    },
+                    null,
+                    2
+                  ),
+                },
+              ],
+            }
           case 'get_merit_detail':
-            const detailParams = args as any;
-            const detailResult = await meritClient.getMeritDetail(detailParams);
-            const target = (detailResult.ITEMS || []).find((item: any) => item.NAME_KO === detailParams.nameKo);
+            const detailParams = args as any
+            const detailResult = await meritClient.getMeritDetail(detailParams)
+            const target = (detailResult.ITEMS || []).find(
+              (item: any) => item.NAME_KO === detailParams.nameKo
+            )
             return {
-              content: [{ 
-                type: 'text', 
-                text: JSON.stringify({ achievement: target ? target.ACHIVEMENT : '내용을 찾을 수 없습니다.' }, null, 2) 
-              }],
-            };
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    {
+                      achievement: target ? target.ACHIVEMENT : '내용을 찾을 수 없습니다.',
+                    },
+                    null,
+                    2
+                  ),
+                },
+              ],
+            }
           case 'list_by_movement':
-            const movementParams = args as any;
+            const movementParams = args as any
             const movementResult = await meritClient.listByMovement(
               movementParams.workoutAffil,
               movementParams.nPageIndex,
               movementParams.nCountPerPage
-            );
+            )
             return {
-              content: [{ 
-                type: 'text', 
-                text: JSON.stringify({ items: movementResult.ITEMS || [], totalCount: movementResult.TOTAL_COUNT || 0 }, null, 2) 
-              }],
-            };
+              content: [
+                {
+                  type: 'text',
+                  text: JSON.stringify(
+                    {
+                      items: movementResult.ITEMS || [],
+                      totalCount: movementResult.TOTAL_COUNT || 0,
+                    },
+                    null,
+                    2
+                  ),
+                },
+              ],
+            }
           case 'get_merit_stats':
-            const statsResult = await meritClient.getMeritStats();
+            const statsResult = await meritClient.getMeritStats()
             return {
               content: [{ type: 'text', text: JSON.stringify(statsResult, null, 2) }],
-            };
+            }
           default:
-            throw new Error(`Unknown tool: ${name}`);
+            throw new Error(`Unknown tool: ${name}`)
         }
       } catch (error: any) {
         return {
           content: [{ type: 'text', text: `Error: ${error.message}` }],
           isError: true,
-        };
+        }
       }
-    });
+    })
   }
 
   async run() {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-    console.error('National Merit Scout MCP server running on stdio');
+    const transport = new StdioServerTransport()
+    await this.server.connect(transport)
+    console.error('Gonghun MCP server running on stdio')
   }
 }
 
-const server = new NationalMeritScoutServer();
-server.run().catch(console.error);
+const server = new GonghunServer()
+
+server.run().catch(console.error)
